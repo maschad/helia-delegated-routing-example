@@ -1,0 +1,25 @@
+{
+  "name": "helia-delegated-test",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@chainsafe/libp2p-noise": "^13.0.0",
+    "@chainsafe/libp2p-yamux": "^5.0.0",
+    "@helia/unixfs": "^1.4.1",
+    "@libp2p/bootstrap": "^9.0.5",
+    "@libp2p/delegated-peer-routing": "^4.0.12",
+    "@libp2p/ipni-content-routing": "^2.0.0",
+    "@libp2p/tcp": "^8.0.5",
+    "blockstore-core": "^4.3.3",
+    "datastore-core": "^9.2.2",
+    "helia": "^2.0.1",
+    "kubo-rpc-client": "^3.0.1",
+    "libp2p": "^0.46.8"
+  }
+}
