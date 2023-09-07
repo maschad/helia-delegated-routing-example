@@ -2,7 +2,6 @@
 
 import { noise } from '@chainsafe/libp2p-noise'
 import { yamux } from '@chainsafe/libp2p-yamux'
-import { unixfs } from '@helia/unixfs'
 import { bootstrap } from '@libp2p/bootstrap'
 import { delegatedPeerRouting } from '@libp2p/delegated-peer-routing'
 import { ipniContentRouting } from '@libp2p/ipni-content-routing'
@@ -13,6 +12,8 @@ import { createHelia } from 'helia'
 import { create as kuboClient } from 'kubo-rpc-client'
 import { createLibp2p } from 'libp2p'
 import { identifyService } from 'libp2p/identify'
+import { kadDHT } from '@libp2p/kad-dht'
+
 
 async function createNode (client, port) {
   // the blockstore is where we store the blocks that make up files
@@ -57,7 +58,10 @@ async function createNode (client, port) {
       })
     ],
     services: {
-      identify: identifyService()
+      identify: identifyService(),
+      dht: kadDHT({
+        clientMode: true
+      })
     }
   })
 
@@ -80,34 +84,3 @@ console.log('Node 2 peerID', node2.libp2p.peerId.toString() + ' multiaddr: ', no
 const peerInfo = await node1.libp2p.peerRouting.findPeer(node2.libp2p.peerId)
 
 console.log('peer info:', peerInfo)
-
-const connection = await node1.libp2p.dial(peerInfo.id)
-
-console.log('Connected to:', connection.remoteAddr.toString())
-
-// create a filesystem on top of Helia, in this case it's UnixFS
-const fs = unixfs(node1)
-
-// we will use this TextEncoder to turn strings into Uint8Arrays
-const encoder = new TextEncoder()
-
-// add the bytes to your node and receive a unique content identifier
-const cid = await fs.addBytes(encoder.encode('Hello World'))
-
-console.log('Added file:', cid.toString())
-
-// create a filesystem on top of the second Helia node
-const fs2 = unixfs(node2)
-
-// this decoder will turn Uint8Arrays into strings
-const decoder = new TextDecoder()
-let text = ''
-
-// use the second Helia node to fetch the file from the first Helia node
-for await (const chunk of fs2.cat(cid)) {
-  text += decoder.decode(chunk, {
-    stream: true
-  })
-}
-
-console.log('Fetched file contents:', text)
